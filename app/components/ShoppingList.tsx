@@ -87,7 +87,7 @@ export default function ShoppingList() {
               document.getElementById("price-input")?.focus()
             }
             placeholder="Nome do item"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded text-black"
           />
           <div className="flex gap-2">
             <input
@@ -99,7 +99,7 @@ export default function ShoppingList() {
               }
               onKeyPress={(e) => e.key === "Enter" && handleAdd()}
               placeholder="R$"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-black"
             />
             <button onClick={handleAdd}>OK</button>
           </div>
@@ -123,7 +123,7 @@ export default function ShoppingList() {
                         prev ? { ...prev, name: e.target.value } : prev
                       )
                     }
-                    className="flex-1 p-2 border rounded"
+                    className="flex-1 p-2 border rounded text-black"
                     onKeyUp={(e) =>
                       e.key === "Enter" &&
                       document.getElementById(`price-edit-${item.id}`)?.focus()
@@ -138,7 +138,7 @@ export default function ShoppingList() {
                         prev ? { ...prev, price: e.target.value } : prev
                       )
                     }
-                    className="w-24 p-2 border rounded"
+                    className="w-24 p-2 border rounded text-black"
                     onKeyPress={(e) => e.key === "Enter" && handleEdit()}
                   />
                   <button onClick={handleEdit}>
