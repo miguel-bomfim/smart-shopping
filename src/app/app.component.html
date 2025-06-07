@@ -25,13 +25,14 @@
     <span class="price-input">
       <input
         #priceInput
-        type="number"
+        type="text"
         [(ngModel)]="price"
         class="form-control col"
         placeholder="R$"
+        (input)="formatPriceInput($event)"
       />
-
-      <button (click)="addProduct(model, priceInput.value)">Add</button>
+  
+      <button (click)="addProduct(model, price)">Add</button>
     </span>
 
     @if(productList.length > 0) {
