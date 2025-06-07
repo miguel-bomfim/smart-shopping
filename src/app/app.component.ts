@@ -110,20 +110,23 @@ export class AppComponent {
 
   // Método de formatação do input de preço com máscara "00,00"
   formatPriceInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-
-    // Remove qualquer caractere que não seja número
-    let value = input.value.replace(/\D/g, '');
-
-    // Garante pelo menos 3 dígitos (ex: "1" -> "001")
-    while (value.length < 3) {
-      value = '0' + value;
-    }
-
-    // Insere a vírgula antes dos dois últimos dígitos
-    const formatted = value.replace(/(\d+)(\d{2})$/, '$1,$2');
-
-    input.value = formatted;
-    this.price = formatted;
-  }
+		  const input = event.target as HTMLInputElement;
+		
+		  // Remove qualquer caractere não numérico
+		  let value = input.value.replace(/\D/g, '');
+		
+		  // Remove zeros à esquerda
+		  value = value.replace(/^0+/, '');
+		
+		  // Se o valor for muito pequeno, preenche com zeros
+		  if (value.length < 3) {
+		    value = value.padStart(3, '0');
+		  }
+		
+		  // Insere vírgula antes dos dois últimos dígitos
+		  const formatted = value.replace(/(\d+)(\d{2})$/, '$1,$2');
+		
+		  input.value = formatted;
+		  this.price = formatted;
+		}
 }
