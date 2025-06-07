@@ -63,23 +63,33 @@ const products: { name: string }[] = [
 })
 export class AppComponent {
   model: any;
-  price: any;
-  productList: { name: string, price: number }[] = [];
+  price: any = '';
+  productList: { name: string; price: number }[] = [];
   total: number = 0;
 
-	search: OperatorFunction<string, readonly { name: string }[]> = (text$: Observable<string>) =>
-		text$.pipe(
-			debounceTime(200),
-			map((term) =>
-				term === '' ? [] : products.filter((v) => v.name.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
-			),
-		);
+  // Autocomplete (Typeahead)
+  search: OperatorFunction<string, readonly { name: string }[]> = (
+    text$: Observable<string>
+  ) =>
+    text$.pipe(
+      debounceTime(200),
+      map((term) =>
+        term === ''
+          ? []
+          : products
+              .filter((v) =>
+                v.name.toLowerCase().includes(term.toLowerCase())
+              )
+              .slice(0, 10)
+      )
+    );
 
-	formatter = (x: { name: string }) => x.name;
+  formatter = (x: { name: string }) => x.name;
 
   addProduct(name: any, priceInput: string) {
     if (!name || !priceInput) return;
 
+    // Substitui vírgula por ponto e converte para número
     const cleanPrice = parseFloat(priceInput.replace(',', '.'));
     if (isNaN(cleanPrice)) return;
 
@@ -98,5 +108,22 @@ export class AppComponent {
     this.productList.splice(index, 1);
   }
 
+  // Método de formatação do input de preço com máscara "00,00"
+  formatPriceInput(event: Event) {
+    const input = event.target as HTMLInputElement;
 
+    // Remove qualquer caractere que não seja número
+    let value = input.value.replace(/\D/g, '');
+
+    // Garante pelo menos 3 dígitos (ex: "1" -> "001")
+    while (value.length < 3) {
+      value = '0' + value;
+    }
+
+    // Insere a vírgula antes dos dois últimos dígitos
+    const formatted = value.replace(/(\d+)(\d{2})$/, '$1,$2');
+
+    input.value = formatted;
+    this.price = formatted;
+  }
 }
