@@ -7,10 +7,11 @@
     SmartShopping
   </h1>
 
-  <h2>R$ {{ total.toFixed(2) }}</h2>
+  <h2>R$ {{ total.toFixed(2).replace('.', ',') }}</h2>
 
   <div class="inputs">
     <input
+      #productInputRef
       id="typeahead-template"
       type="text"
       class="form-control col"
@@ -20,18 +21,20 @@
       [inputFormatter]="formatter"
       [resultFormatter]="formatter"
       [selectOnExact]="true"
+      (keydown.enter)="focusPriceInput()"
     />
 
     <span class="price-input">
-      <input
-        #priceInput
-        type="text"
-        [(ngModel)]="price"
-        class="form-control col"
-        placeholder="R$"
-        (input)="formatPriceInput($event)"
-      />
-  
+    <input
+      #priceInputRef
+      type="text"
+      [(ngModel)]="price"
+      class="form-control col"
+      placeholder="R$"
+      (input)="formatPriceInput($event)"
+      (keydown.enter)="handleEnterOnPrice()"
+    />
+
       <button (click)="addProduct(model, price)">Add</button>
     </span>
 
@@ -48,7 +51,7 @@
           @for(item of productList; track $index) {
             <tr>
               <td>{{ item.name }}</td>
-              <td>R$ {{ item.price }}</td>
+              <td>R$ {{ item.price.toString().replace('.', ',') }}</td>
               <td>
                 <button class="btn btn-danger btn-sm" (click)="removeProduct($index)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
+
 import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, OperatorFunction } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
@@ -66,6 +67,8 @@ export class AppComponent {
   price: any = '';
   productList: { name: string; price: number }[] = [];
   total: number = 0;
+  @ViewChild('priceInputRef') priceInputRef!: ElementRef;
+  @ViewChild('productInputRef') productInputRef!: ElementRef;
 
   // Autocomplete (Typeahead)
   search: OperatorFunction<string, readonly { name: string }[]> = (
@@ -108,24 +111,35 @@ export class AppComponent {
     this.productList.splice(index, 1);
   }
 
+  focusPriceInput() {
+    this.priceInputRef.nativeElement.focus();
+  }
+
+  handleEnterOnPrice() {
+    this.addProduct(this.model, this.price);
+    setTimeout(() => {
+      this.productInputRef.nativeElement.focus();
+    });
+  }
+
   // Método de formatação do input de preço com máscara "00,00"
   formatPriceInput(event: Event) {
 		  const input = event.target as HTMLInputElement;
-		
+
 		  // Remove qualquer caractere não numérico
 		  let value = input.value.replace(/\D/g, '');
-		
+
 		  // Remove zeros à esquerda
 		  value = value.replace(/^0+/, '');
-		
+
 		  // Se o valor for muito pequeno, preenche com zeros
 		  if (value.length < 3) {
 		    value = value.padStart(3, '0');
 		  }
-		
+
 		  // Insere vírgula antes dos dois últimos dígitos
 		  const formatted = value.replace(/(\d+)(\d{2})$/, '$1,$2');
-		
+
 		  input.value = formatted;
 		  this.price = formatted;
 		}
