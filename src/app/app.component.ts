@@ -62,10 +62,12 @@ const products: { name: string }[] = [
 	templateUrl: './app.component.html',
 	styleUrl: './app.component.css',
 })
+
 export class AppComponent {
   model: any;
   price: any = '';
-  productList: { name: string; price: number }[] = [];
+  qtd: any;
+  productList: { name: string; price: number; qtd: number }[] = [];
   total: number = 0;
   @ViewChild('priceInputRef') priceInputRef!: ElementRef;
   @ViewChild('productInputRef') productInputRef!: ElementRef;
@@ -89,20 +91,21 @@ export class AppComponent {
 
   formatter = (x: { name: string }) => x.name;
 
-  addProduct(name: any, priceInput: string) {
+  addProduct(name: any, priceInput: string, qtd: number) {
     if (!name || !priceInput) return;
 
     // Substitui vírgula por ponto e converte para número
-    const cleanPrice = parseFloat(priceInput.replace(',', '.'));
+    const cleanPrice = parseFloat(priceInput.replace(',', '.')) * Number(qtd);
     if (isNaN(cleanPrice)) return;
 
     const productName = typeof name === 'string' ? name : name.name;
 
-    this.productList.unshift({ name: productName, price: cleanPrice });
+    this.productList.unshift({ name: productName, price: cleanPrice, qtd: qtd });
     this.total += cleanPrice;
 
     this.model = '';
     this.price = '';
+    this.qtd = '';
   }
 
   removeProduct(index: number) {
@@ -113,10 +116,11 @@ export class AppComponent {
 
   focusPriceInput() {
     this.priceInputRef.nativeElement.focus();
+    this.qtd = 1
   }
 
   handleEnterOnPrice() {
-    this.addProduct(this.model, this.price);
+    this.addProduct(this.model, this.price, this.qtd);
     setTimeout(() => {
       this.productInputRef.nativeElement.focus();
     });

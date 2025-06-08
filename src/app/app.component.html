@@ -33,9 +33,18 @@
       placeholder="R$"
       (input)="formatPriceInput($event)"
       (keydown.enter)="handleEnterOnPrice()"
+      (focus)="focusPriceInput()"
     />
 
-      <button (click)="addProduct(model, price)">Add</button>
+    <input
+      type="number"
+      [(ngModel)]="qtd"
+      class="form-control col"
+      placeholder="Quantidade"
+      (keydown.enter)="handleEnterOnPrice()"
+    />
+
+      <button (click)="addProduct(model, price, qtd)">Add</button>
     </span>
 
     @if(productList.length > 0) {
@@ -44,6 +53,7 @@
           <tr>
             <th>Produto</th>
             <th>Preço</th>
+            <th>Qtd</th>
             <th></th>
           </tr>
         </thead>
@@ -52,6 +62,7 @@
             <tr>
               <td>{{ item.name }}</td>
               <td>R$ {{ item.price.toString().replace('.', ',') }}</td>
+              <td>{{ item.qtd }}</td>
               <td>
                 <button class="btn btn-danger btn-sm" (click)="removeProduct($index)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
