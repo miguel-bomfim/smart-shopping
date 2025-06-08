@@ -98,7 +98,7 @@ export class AppComponent {
 
     const productName = typeof name === 'string' ? name : name.name;
 
-    this.productList.push({ name: productName, price: cleanPrice });
+    this.productList.unshift({ name: productName, price: cleanPrice });
     this.total += cleanPrice;
 
     this.model = '';

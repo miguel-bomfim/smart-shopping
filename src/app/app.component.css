@@ -26,6 +26,10 @@ h2 {
   gap: 12px;
 }
 
+.inputs input {
+  padding: 10px;
+}
+
 input::placeholder {
   opacity: 0.5;
 }
