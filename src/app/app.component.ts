@@ -72,7 +72,34 @@ export class AppComponent {
   @ViewChild('priceInputRef') priceInputRef!: ElementRef;
   @ViewChild('productInputRef') productInputRef!: ElementRef;
 
-  // Autocomplete (Typeahead)
+  editIndex: number | null = null;
+editName: string = '';
+editPrice: string = '';
+
+startEdit(index: number, item: { name: string; price: number }) {
+  this.editIndex = index;
+  this.editName = item.name;
+  this.editPrice = item.price.toString().replace('.', ',');
+}
+
+saveEdit(index: number) {
+  const updatedPrice = parseFloat(this.editPrice.replace(',', '.'));
+  if (isNaN(updatedPrice)) return;
+
+  const oldPrice = this.productList[index].price;
+
+  this.productList[index].name = this.editName;
+  this.productList[index].price = updatedPrice;
+
+  // atualiza o total
+  this.total += updatedPrice - oldPrice;
+
+  this.editIndex = null;
+  this.editName = '';
+  this.editPrice = '';
+}
+
+
   search: OperatorFunction<string, readonly { name: string }[]> = (
     text$: Observable<string>
   ) =>

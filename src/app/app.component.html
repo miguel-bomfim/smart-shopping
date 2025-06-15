@@ -58,8 +58,32 @@
           </tr>
         </thead>
         <tbody>
-          @for(item of productList; track $index) {
-            <tr>
+             @for (item of productList; track $index) {
+                <tr>
+                  <td>
+                    @if (editIndex === $index) {
+                      <input class="edit-inputs" (blur)="saveEdit($index)" [(ngModel)]="editName" (keydown.enter)="saveEdit($index)" name="name" autofocus/>
+                    } @else {
+                      <span (click)="startEdit($index, item)"> {{ item.name }} </span>
+                    }
+                  </td>
+                  <td>
+                    @if (editIndex === $index) {
+                      <input class="edit-inputs" (blur)="saveEdit($index)" [(ngModel)]="editPrice" (keydown.enter)="saveEdit($index)" name="price"/>
+                    } @else {
+                      <span (click)="startEdit($index, item)"> R$ {{ item.price.toString().replace('.', ',') }} </span>
+                    }
+                  </td>
+                  <td>{{ item.qtd }}</td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" (click)="removeProduct($index)">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+
+
+            <!-- <tr>
               <td>{{ item.name }}</td>
               <td>R$ {{ item.price.toString().replace('.', ',') }}</td>
               <td>{{ item.qtd }}</td>
@@ -70,7 +94,7 @@
                   </svg>
                 </button>
               </td>
-            </tr>
+            </tr> -->
           }
         </tbody>
       </table>

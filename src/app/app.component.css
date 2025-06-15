@@ -19,6 +19,11 @@ h2 {
   color: #00ff66;
 }
 
+.edit-inputs {
+  background-color: transparent;
+  color: white;
+  border: 0;
+}
 
 .inputs {
   display: flex;
