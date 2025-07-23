@@ -1,9 +1,23 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-
-import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, OperatorFunction } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
+import { AutoComplete } from 'primeng/autocomplete';
+import { IftaLabelModule } from 'primeng/iftalabel';
+import { InputNumber } from 'primeng/inputnumber';
+import { TableModule } from 'primeng/table';
+import { Table } from 'primeng/table';
+import { SortEvent } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+
+interface AutoCompleteCompleteEvent {
+  originalEvent: Event;
+  query: string;
+}
+
+interface Product {
+  name: string;
+  price: number;
+  qtd: number;
+}
 
 const products: { name: string }[] = [
 	{ name: 'Achocolatado' },
@@ -58,120 +72,76 @@ const products: { name: string }[] = [
 
 @Component({
 	selector: 'app-root',
-	imports: [NgbTypeaheadModule, FormsModule],
+	imports: [FormsModule, AutoComplete, InputNumber, TableModule, IftaLabelModule, ButtonModule],
 	templateUrl: './app.component.html',
 	styleUrl: './app.component.css',
 })
 
 export class AppComponent {
-  model: any;
-  price: any = '';
-  qtd: any;
-  productList: { name: string; price: number; qtd: number }[] = [];
+  @ViewChild('dt') dt!: Table;
+  items: any[] = [];
+  productName: string = '';
+  productPrice: number | null = null;
+  quantity: number = 1;
+  productList: Product[] = [];
   total: number = 0;
-  @ViewChild('priceInputRef') priceInputRef!: ElementRef;
-  @ViewChild('productInputRef') productInputRef!: ElementRef;
+  initialValue: Product[] = [];
+  isSorted: boolean | null = null;
 
-  editIndex: number | null = null;
-editName: string = '';
-editPrice: string = '';
-
-startEdit(index: number, item: { name: string; price: number }) {
-  this.editIndex = index;
-  this.editName = item.name;
-  this.editPrice = item.price.toString().replace('.', ',');
-}
-
-saveEdit(index: number) {
-  const updatedPrice = parseFloat(this.editPrice.replace(',', '.'));
-  if (isNaN(updatedPrice)) return;
-
-  const oldPrice = this.productList[index].price;
-
-  this.productList[index].name = this.editName;
-  this.productList[index].price = updatedPrice;
-
-  // atualiza o total
-  this.total += updatedPrice - oldPrice;
-
-  this.editIndex = null;
-  this.editName = '';
-  this.editPrice = '';
-}
-
-
-  search: OperatorFunction<string, readonly { name: string }[]> = (
-    text$: Observable<string>
-  ) =>
-    text$.pipe(
-      debounceTime(200),
-      map((term) =>
-        term === ''
-          ? []
-          : products
-              .filter((v) =>
-                v.name.toLowerCase().includes(term.toLowerCase())
-              )
-              .slice(0, 10)
-      )
+  search(event: AutoCompleteCompleteEvent) {
+    this.items = products.map((item) => ( item.name )).filter((item) =>
+      item.toLowerCase().includes(event.query.toLowerCase())
     );
+  }
 
-  formatter = (x: { name: string }) => x.name;
-
-  addProduct(name: any, priceInput: string, qtd: number) {
+  addProduct(name: any, priceInput: number | null, qtd: number) {
     if (!name || !priceInput) return;
-
-    // Substitui vírgula por ponto e converte para número
-    const cleanPrice = parseFloat(priceInput.replace(',', '.')) * Number(qtd);
-    if (isNaN(cleanPrice)) return;
 
     const productName = typeof name === 'string' ? name : name.name;
 
-    this.productList.unshift({ name: productName, price: cleanPrice, qtd: qtd });
-    this.total += cleanPrice;
+    this.productList.unshift({ name: productName, price: priceInput, qtd: qtd });
+    this.initialValue.unshift({ name: productName, price: priceInput, qtd: qtd });
+    this.total += priceInput * qtd;
 
-    this.model = '';
-    this.price = '';
-    this.qtd = '';
+    this.productName = '';
+    this.productPrice = null;
+    this.quantity = 1;
   }
 
-  removeProduct(index: number) {
-    const price = this.productList[index].price;
-    this.total -= price;
-    this.productList.splice(index, 1);
+  removeProduct(product: Product) {
+    const price = product.price;
+    this.total -= price * product.qtd;
+    this.productList.splice(this.productList.indexOf(product), 1);
+    this.initialValue.splice(this.productList.indexOf(product), 1);
   }
 
-  focusPriceInput() {
-    this.priceInputRef.nativeElement.focus();
-    this.qtd = 1
-  }
+    customSort(event: SortEvent) {
+      if (this.isSorted == null || this.isSorted === undefined) {
+          this.isSorted = true;
+          this.sortTableData(event);
+      } else if (this.isSorted == true) {
+          this.isSorted = false;
+          this.sortTableData(event);
+      } else if (this.isSorted == false) {
+          this.isSorted = null;
+          this.productList = [...this.initialValue];
+          this.dt?.reset();
+      }
+    }
 
-  handleEnterOnPrice() {
-    this.addProduct(this.model, this.price, this.qtd);
-    setTimeout(() => {
-      this.productInputRef.nativeElement.focus();
-    });
-  }
+    sortTableData(event: any) {
+      event.data.sort((data1: any, data2: any) => {
+          let value1 = data1[event.field];
+          let value2 = data2[event.field];
+          let result = null;
+          if (value1 == null && value2 != null) result = -1;
+          else if (value1 != null && value2 == null) result = 1;
+          else if (value1 == null && value2 == null) result = 0;
+          else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+          else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
 
-  // Método de formatação do input de preço com máscara "00,00"
-  formatPriceInput(event: Event) {
-		  const input = event.target as HTMLInputElement;
+          return event.order * result;
+      });
+    }
 
-		  // Remove qualquer caractere não numérico
-		  let value = input.value.replace(/\D/g, '');
-
-		  // Remove zeros à esquerda
-		  value = value.replace(/^0+/, '');
-
-		  // Se o valor for muito pequeno, preenche com zeros
-		  if (value.length < 3) {
-		    value = value.padStart(3, '0');
-		  }
-
-		  // Insere vírgula antes dos dois últimos dígitos
-		  const formatted = value.replace(/(\d+)(\d{2})$/, '$1,$2');
-
-		  input.value = formatted;
-		  this.price = formatted;
-		}
 }

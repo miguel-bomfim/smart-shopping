@@ -1,110 +1,93 @@
-<main class="main-section">
-  <h1>
-    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="30" fill="currentColor" class="bi bi-cart-check" viewBox="0 0 16 16">
-      <path d="M11.354 6.354a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0z"/>
-      <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-    </svg>
+<main class="p-8">
+  <h1 class="text-center text-3xl">
+    <i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i>
     SmartShopping
   </h1>
+  
+  <h2 class="text-center text-stone-100 text-2xl py-6"><span class="bg-emerald-500 p-2 rounded-md">R$ {{ total.toFixed(2).replace('.', ',') }}</span></h2>
 
-  <h2>R$ {{ total.toFixed(2).replace('.', ',') }}</h2>
+  <div class="flex flex-col items-center gap-2">
+    <div class="flex flex-col w-full">
+      <p-autocomplete
+        class="caret-green-500"
+        pInputText
+        id="product"
+        aria-describedby="product"
+        [suggestions]="items"
+        (completeMethod)="search($event)"
+        [(ngModel)]="productName"
+        placeholder="Digite o produto"
+        inputId="product"
+        [inputStyle]="{ width: '100%' }"
+      />
+    </div>
 
-  <div class="inputs">
-    <input
-      #productInputRef
-      id="typeahead-template"
-      type="text"
-      class="form-control col"
-      placeholder="Produto"
-      [(ngModel)]="model"
-      [ngbTypeahead]="search"
-      [inputFormatter]="formatter"
-      [resultFormatter]="formatter"
-      [selectOnExact]="true"
-      (keydown.enter)="focusPriceInput()"
-    />
+    <span class="flex w-full gap-2">
+      <span class="flex">
+        <p-inputnumber
+          [(ngModel)]="productPrice"
+          inputId="on_label"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          placeholder="R$ 0,00"
+          [inputStyle]="{ width: '10rem' }"
+        />
+  
+        <p-inputnumber [(ngModel)]="quantity" [showButtons]="true" buttonLayout="horizontal" spinnerMode="horizontal" inputId="horizontal" [inputStyle]="{ width: '3rem' }">
+          <ng-template #incrementbuttonicon>
+              <span class="pi pi-plus"></span>
+          </ng-template>
+          <ng-template #decrementbuttonicon>
+              <span class="pi pi-minus"></span>
+          </ng-template>
+        </p-inputnumber>
+      </span>
 
-    <span class="price-input">
-    <input
-      #priceInputRef
-      type="text"
-      [(ngModel)]="price"
-      class="form-control col"
-      placeholder="R$"
-      (input)="formatPriceInput($event)"
-      (keydown.enter)="handleEnterOnPrice()"
-      (focus)="focusPriceInput()"
-    />
-
-    <input
-      type="number"
-      [(ngModel)]="qtd"
-      class="form-control col"
-      placeholder="Quantidade"
-      (keydown.enter)="handleEnterOnPrice()"
-    />
-
-      <button (click)="addProduct(model, price, qtd)">Add</button>
+      <p-button icon="pi pi-save" (click)="addProduct(productName, productPrice, quantity)"/>
     </span>
-
-    @if(productList.length > 0) {
-      <table class="table table-dark table-striped mt-4">
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Preço</th>
-            <th>Qtd</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-             @for (item of productList; track $index) {
-                <tr>
-                  <td>
-                    @if (editIndex === $index) {
-                      <input class="edit-inputs" (blur)="saveEdit($index)" [(ngModel)]="editName" (keydown.enter)="saveEdit($index)" name="name" autofocus/>
-                    } @else {
-                      <span (click)="startEdit($index, item)"> {{ item.name }} </span>
-                    }
-                  </td>
-                  <td>
-                    @if (editIndex === $index) {
-                      <input class="edit-inputs" (blur)="saveEdit($index)" [(ngModel)]="editPrice" (keydown.enter)="saveEdit($index)" name="price"/>
-                    } @else {
-                      <span (click)="startEdit($index, item)"> R$ {{ item.price.toString().replace('.', ',') }} </span>
-                    }
-                  </td>
-                  <td>{{ item.qtd }}</td>
-                  <td>
-                    <button class="btn btn-danger btn-sm" (click)="removeProduct($index)">
-                      🗑️
-                    </button>
-                  </td>
-                </tr>
-
-
-            <!-- <tr>
-              <td>{{ item.name }}</td>
-              <td>R$ {{ item.price.toString().replace('.', ',') }}</td>
-              <td>{{ item.qtd }}</td>
-              <td>
-                <button class="btn btn-danger btn-sm" (click)="removeProduct($index)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                  </svg>
-                </button>
-              </td>
-            </tr> -->
-          }
-        </tbody>
-      </table>
-    }
-
-
-
   </div>
+
+    <div class="mt-6">
+
+      @if(productList.length > 0) {
+      <div class="card">
+          <p-table #dt [value]="productList" (sortFunction)="customSort($event)" [customSort]="true">
+           <ng-template #header>
+              <th pSortableColumn="name">
+                  <div class="flex items-center gap-2">
+                      Produto
+                      <p-sortIcon field="name" />
+                  </div>
+              </th>
+              <th pSortableColumn="price">
+                  <div class="flex items-center gap-2">
+                      Preço
+                      <p-sortIcon field="price" />
+                  </div>
+              </th>
+              <th pSortableColumn="qtd">
+                  <div class="flex items-center gap-2">
+                      Qtd
+                      <p-sortIcon field="qtd" />
+                  </div>
+              </th>
+           </ng-template>
+          <ng-template #body let-product >
+            <tr>
+              <td>{{ product.name }}</td>
+              <td> R$ {{ product.price.toFixed(2).toString().replace('.', ',') }} </td>
+              <td>{{ product.qtd }}</td>
+              <td>
+                <p-button icon="pi pi-trash" severity="danger" (click)="removeProduct(product)">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        </div>
+      }
+    </div>
 </main>
-
-
 
 
