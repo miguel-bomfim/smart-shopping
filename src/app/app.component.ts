@@ -1,12 +1,12 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, ViewChild } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators  } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
 import { IftaLabelModule } from 'primeng/iftalabel';
-import { InputNumber } from 'primeng/inputnumber';
-import { TableModule } from 'primeng/table';
-import { Table } from 'primeng/table';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { TableModule, Table } from 'primeng/table';
 import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { CurrencyShiftDirective } from './directives/currency-shift.directive';
 
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
@@ -72,21 +72,28 @@ const products: { name: string }[] = [
 
 @Component({
 	selector: 'app-root',
-	imports: [FormsModule, AutoComplete, InputNumber, TableModule, IftaLabelModule, ButtonModule],
+	imports: [ AutoComplete, InputNumberModule, ReactiveFormsModule, TableModule, IftaLabelModule, ButtonModule, CurrencyShiftDirective],
 	templateUrl: './app.component.html',
 	styleUrl: './app.component.css',
 })
-
 export class AppComponent {
   @ViewChild('dt') dt!: Table;
+
+  productForm: FormGroup;
+
   items: any[] = [];
-  productName: string = '';
-  productPrice: number | null = null;
-  quantity: number = 1;
   productList: Product[] = [];
-  total: number = 0;
   initialValue: Product[] = [];
+  total: number = 0;
   isSorted: boolean | null = null;
+
+  constructor(private fb: FormBuilder) {
+    this.productForm = this.fb.group({
+      productName: ['', Validators.required],
+      productPrice: [null, [Validators.required, Validators.min(0.01)]],
+      quantity: [1, [Validators.required, Validators.min(1)]]
+    });
+  }
 
   search(event: AutoCompleteCompleteEvent) {
     this.items = products.map((item) => ( item.name )).filter((item) =>
@@ -94,54 +101,63 @@ export class AppComponent {
     );
   }
 
-  addProduct(name: any, priceInput: number | null, qtd: number) {
-    if (!name || !priceInput) return;
+  addProduct() {
+    if (this.productForm.invalid) {
+      return;
+    }
 
-    const productName = typeof name === 'string' ? name : name.name;
+    const formValue = this.productForm.getRawValue();
 
-    this.productList.unshift({ name: productName, price: priceInput, qtd: qtd });
-    this.initialValue.unshift({ name: productName, price: priceInput, qtd: qtd });
-    this.total += priceInput * qtd;
+    this.productList.unshift({ name: formValue.productName, price: formValue.productPrice, qtd: formValue.quantity });
+    this.initialValue.unshift({ name: formValue.productName, price: formValue.productPrice, qtd: formValue.quantity });
+    this.total += formValue.productPrice * formValue.quantity;
 
-    this.productName = '';
-    this.productPrice = null;
-    this.quantity = 1;
+    this.productForm.reset({
+      productName: '',
+      productPrice: 0,
+      quantity: 1
+    });
   }
 
   removeProduct(product: Product) {
-    const price = product.price;
-    this.total -= price * product.qtd;
-    this.productList.splice(this.productList.indexOf(product), 1);
-    this.initialValue.splice(this.productList.indexOf(product), 1);
+    this.total -= product.price * product.qtd;
+    const indexInList = this.productList.indexOf(product);
+    if (indexInList > -1) {
+      this.productList.splice(indexInList, 1);
+    }
+
+    const indexInInitial = this.initialValue.indexOf(product);
+    if (indexInInitial > -1) {
+      this.initialValue.splice(indexInInitial, 1);
+    }
   }
 
-    customSort(event: SortEvent) {
-      if (this.isSorted == null || this.isSorted === undefined) {
-          this.isSorted = true;
-          this.sortTableData(event);
-      } else if (this.isSorted == true) {
-          this.isSorted = false;
-          this.sortTableData(event);
-      } else if (this.isSorted == false) {
-          this.isSorted = null;
-          this.productList = [...this.initialValue];
-          this.dt?.reset();
-      }
+  customSort(event: SortEvent) {
+    if (this.isSorted == null || this.isSorted === undefined) {
+        this.isSorted = true;
+        this.sortTableData(event);
+    } else if (this.isSorted == true) {
+        this.isSorted = false;
+        this.sortTableData(event);
+    } else if (this.isSorted == false) {
+        this.isSorted = null;
+        this.productList = [...this.initialValue];
+        this.dt?.reset();
     }
+  }
 
-    sortTableData(event: any) {
-      event.data.sort((data1: any, data2: any) => {
-          let value1 = data1[event.field];
-          let value2 = data2[event.field];
-          let result = null;
-          if (value1 == null && value2 != null) result = -1;
-          else if (value1 != null && value2 == null) result = 1;
-          else if (value1 == null && value2 == null) result = 0;
-          else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
-          else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+  sortTableData(event: any) {
+    event.data.sort((data1: any, data2: any) => {
+        let value1 = data1[event.field];
+        let value2 = data2[event.field];
+        let result = null;
+        if (value1 == null && value2 != null) result = -1;
+        else if (value1 != null && value2 == null) result = 1;
+        else if (value1 == null && value2 == null) result = 0;
+        else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+        else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
 
-          return event.order * result;
-      });
-    }
-
+        return event.order * result;
+    });
+  }
 }

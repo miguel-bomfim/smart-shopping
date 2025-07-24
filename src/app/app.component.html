@@ -4,9 +4,9 @@
     SmartShopping
   </h1>
   
-  <h2 class="text-center text-stone-100 text-2xl py-6"><span class="bg-emerald-500 p-2 rounded-md">R$ {{ total.toFixed(2).replace('.', ',') }}</span></h2>
+  <h2 class="text-center text-stone-100 text-2xl py-6"><span class="bg-emerald-500 px-2 py-1 rounded-md">R$ {{ total.toFixed(2).replace('.', ',') }}</span></h2>
 
-  <div class="flex flex-col items-center gap-2">
+  <form [formGroup]="productForm" (ngSubmit)="addProduct()" class="flex flex-col items-center gap-2">
     <div class="flex flex-col w-full">
       <p-autocomplete
         class="caret-green-500"
@@ -15,26 +15,33 @@
         aria-describedby="product"
         [suggestions]="items"
         (completeMethod)="search($event)"
-        [(ngModel)]="productName"
+        formControlName="productName"
         placeholder="Digite o produto"
         inputId="product"
         [inputStyle]="{ width: '100%' }"
       />
     </div>
 
-    <span class="flex w-full gap-2">
-      <span class="flex">
+    <span class="flex w-full justify-between">
         <p-inputnumber
-          [(ngModel)]="productPrice"
+          formControlName="productPrice"
           inputId="on_label"
           mode="currency"
           currency="BRL"
           locale="pt-BR"
           placeholder="R$ 0,00"
-          [inputStyle]="{ width: '10rem' }"
+          appCurrencyShift
+          [inputStyle]="{ width: '9rem' }"
         />
   
-        <p-inputnumber [(ngModel)]="quantity" [showButtons]="true" buttonLayout="horizontal" spinnerMode="horizontal" inputId="horizontal" [inputStyle]="{ width: '3rem' }">
+        <p-inputnumber
+          formControlName="quantity"
+          [showButtons]="true" buttonLayout="horizontal"
+          spinnerMode="horizontal"
+          inputId="horizontal"
+          [min]="1"
+          [inputStyle]="{ width: '3rem' }"
+        >
           <ng-template #incrementbuttonicon>
               <span class="pi pi-plus"></span>
           </ng-template>
@@ -42,11 +49,10 @@
               <span class="pi pi-minus"></span>
           </ng-template>
         </p-inputnumber>
-      </span>
 
-      <p-button icon="pi pi-save" (click)="addProduct(productName, productPrice, quantity)"/>
+      <p-button icon="pi pi-check" type="submit" [disabled]="productForm.invalid"/>
     </span>
-  </div>
+  </form>
 
     <div class="mt-6">
 
