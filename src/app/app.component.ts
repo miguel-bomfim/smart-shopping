@@ -96,9 +96,16 @@ export class AppComponent {
   }
 
   search(event: AutoCompleteCompleteEvent) {
-    this.items = products.map((item) => ( item.name )).filter((item) =>
-      item.toLowerCase().includes(event.query.toLowerCase())
-    );
+    const query = event.query.toLowerCase();
+    
+    this.items = products
+      .map((item) => item.name)
+      .filter((name) => name.toLowerCase().includes(query))
+      .sort((a, b) => {
+        const aIndex = a.toLowerCase().indexOf(query);
+        const bIndex = b.toLowerCase().indexOf(query);
+        return aIndex - bIndex;
+      });
   }
 
   addProduct() {
