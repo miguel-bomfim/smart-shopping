@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators  } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
 import { IftaLabelModule } from 'primeng/iftalabel';
@@ -7,6 +7,7 @@ import { TableModule, Table } from 'primeng/table';
 import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CurrencyShiftDirective } from '../../directives/currency-shift.directive';
+import { SupabaseService } from '../../services/supabase.service';
 
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
@@ -19,75 +20,28 @@ interface Product {
   qtd: number;
 }
 
-const products: { name: string }[] = [
-	{ name: 'Achocolatado' },
-	{ name: 'Alface' },
-	{ name: 'Alho' },
-	{ name: 'Amaciante' },
-	{ name: 'Arroz' },
-	{ name: 'Água mineral' },
-	{ name: 'Banana' },
-	{ name: 'Batata' },
-	{ name: 'Biscoito' },
-	{ name: 'Café' },
-	{ name: 'Carne bovina' },
-	{ name: 'Cebola' },
-	{ name: 'Cenoura' },
-	{ name: 'Cerveja' },
-	{ name: 'Chocolate' },
-	{ name: 'Creme dental' },
-	{ name: 'Detergente' },
-	{ name: 'Escova de dentes' },
-	{ name: 'Farinha de trigo' },
-	{ name: 'Feijão' },
-	{ name: 'Fraldas' },
-	{ name: 'Frango' },
-	{ name: 'Iogurte' },
-	{ name: 'Laranja' },
-	{ name: 'Leite' },
-	{ name: 'Leite em pó' },
-	{ name: 'Linguiça' },
-	{ name: 'Macarrão' },
-	{ name: 'Maçã' },
-	{ name: 'Manteiga' },
-	{ name: 'Margarina' },
-	{ name: 'Molho de tomate' },
-	{ name: 'Ovos' },
-	{ name: 'Óleo de soja' },
-	{ name: 'Papel higiênico' },
-	{ name: 'Peixe' },
-	{ name: 'Pizza congelada' },
-	{ name: 'Pão de forma' },
-	{ name: 'Presunto' },
-	{ name: 'Queijo' },
-	{ name: 'Refrigerante' },
-	{ name: 'Sabão em pó' },
-	{ name: 'Sabonete' },
-	{ name: 'Sal' },
-	{ name: 'Shampoo' },
-	{ name: 'Sorvete' },
-	{ name: 'Suco' },
-	{ name: 'Tomate' }
-];
-
 @Component({
   selector: 'app-home',
   imports: [ AutoComplete, InputNumberModule, ReactiveFormsModule, TableModule, IftaLabelModule, ButtonModule, CurrencyShiftDirective],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
 
+  products: { name: string }[] = []
+  loading: boolean = false
   productForm: FormGroup;
-
   items: any[] = [];
   productList: Product[] = [];
   initialValue: Product[] = [];
   total: number = 0;
   isSorted: boolean | null = null;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private readonly supabaseService: SupabaseService
+  ) {
     this.productForm = this.fb.group({
       productName: ['', Validators.required],
       productPrice: [null, [Validators.required, Validators.min(0.01)]],
@@ -95,8 +49,34 @@ export class HomeComponent {
     });
   }
 
+  ngOnInit(): void {
+    this.getProducts();
+  }
+
+  async getProducts() {
+    try {
+      this.loading = true;
+      const { data, error }: any = await this.supabaseService.supabase
+        .from('produto')
+        .select('*');
+
+      if (error) {
+        console.error('Erro ao buscar produtos:', error);
+        return;
+      }
+
+      if (data) {
+        this.products = data
+      }
+    } catch (error) {
+      console.error('Ocorreu um erro:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
   search(event: AutoCompleteCompleteEvent) {
-    this.items = products.map((item) => ( item.name )).filter((item) =>
+    this.items = this.products.map((item) => ( item.name )).filter((item) =>
       item.toLowerCase().includes(event.query.toLowerCase())
     );
   }

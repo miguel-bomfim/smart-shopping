@@ -9,7 +9,7 @@
   <form [formGroup]="productForm" (ngSubmit)="addProduct()" class="flex flex-col items-center gap-2">
     <div class="flex flex-col w-full">
       <p-autocomplete
-        class="caret-green-500"
+        class="caret-green-500 capitalize"
         pInputText
         id="product"
         aria-describedby="product"
@@ -18,7 +18,7 @@
         formControlName="productName"
         placeholder="Digite o produto"
         inputId="product"
-        [inputStyle]="{ width: '100%' }"
+        [inputStyle]="{ width: '100%', textTransform: 'capitalize'}"
         [showEmptyMessage]="false"
       />
     </div>
