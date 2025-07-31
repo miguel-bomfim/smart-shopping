@@ -82,7 +82,7 @@
            </ng-template>
           <ng-template #body let-product >
             <tr>
-              <td>{{ product.name }}</td>
+              <td class="capitalize">{{ product.name }}</td>
               <td> R$ {{ product.price.toFixed(2).toString().replace('.', ',') }} </td>
               <td>{{ product.qtd }}</td>
               <td>
