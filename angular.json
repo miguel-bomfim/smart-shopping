@@ -15,7 +15,6 @@
           "options": {
             "outputPath": "dist/smart-shopping",
             "index": "src/index.html",
-            "baseHref": "/",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js",
@@ -35,7 +34,9 @@
           },
           "configurations": {
             "production": {
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "baseHref": "/",
+              "deployUrl": "/"
             },
             "development": {
               "optimization": false,
