@@ -35,8 +35,7 @@
           },
           "configurations": {
             "production": {
-              "outputHashing": "all",
-              "baseHref": "/"
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
