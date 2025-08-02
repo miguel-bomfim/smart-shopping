@@ -11,8 +11,11 @@ export class LoginComponent {
   constructor(private supabaseService: SupabaseService) {}
 
   async loginWithGoogle() {
+    const redirectTo = `${window.location.origin}`;
+
     const { error } = await this.supabaseService.client.auth.signInWithOAuth({
       provider: 'google',
+      options: { redirectTo }
     });
 
     if (error) {
