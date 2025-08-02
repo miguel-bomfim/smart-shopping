@@ -1,9 +1,16 @@
 <main class="p-8">
+  <header class="flex items-center justify-end mb-6">
+    @if (userMetadata) {
+      <p-avatar [image]="userMetadata.avatar_url" class="mr-2" size="large" shape="circle" />
+    } @else {
+      <p-avatar icon="pi pi-user" class="mr-2" size="large" style="background-color: #ece9fc; color: #2a1261" shape="circle" />
+    }
+  </header>
   <h1 class="text-center text-3xl">
     <i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i>
     SmartShopping
   </h1>
-  
+
   <h2 class="text-center text-stone-100 text-2xl py-6"><span class="bg-emerald-500 px-2 py-1 rounded-md">R$ {{ total.toFixed(2).replace('.', ',') }}</span></h2>
 
   <form [formGroup]="productForm" (ngSubmit)="addProduct()" class="flex flex-col items-center gap-2">
@@ -34,7 +41,7 @@
           appCurrencyShift
           [inputStyle]="{ width: '9rem' }"
         />
-  
+
         <p-inputnumber
           formControlName="quantity"
           [showButtons]="true" buttonLayout="horizontal"

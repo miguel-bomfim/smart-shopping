@@ -1,6 +1,7 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators  } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
+import { AvatarModule } from 'primeng/avatar';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule, Table } from 'primeng/table';
@@ -8,6 +9,7 @@ import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CurrencyShiftDirective } from '../../directives/currency-shift.directive';
 import { SupabaseService } from '../../services/supabase.service';
+import { AuthService } from '../../services/auth.service';
 
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
@@ -20,9 +22,14 @@ interface Product {
   qtd: number;
 }
 
+interface UserMetadata {
+  name: string;
+  avatar_url: string;
+}
+
 @Component({
   selector: 'app-home',
-  imports: [ AutoComplete, InputNumberModule, ReactiveFormsModule, TableModule, IftaLabelModule, ButtonModule, CurrencyShiftDirective],
+  imports: [AutoComplete, InputNumberModule, ReactiveFormsModule, TableModule, IftaLabelModule, ButtonModule, CurrencyShiftDirective, AvatarModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -30,6 +37,7 @@ export class HomeComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
 
   products: { name: string }[] = []
+  userMetadata: UserMetadata | undefined = undefined
   loading: boolean = false
   productForm: FormGroup;
   items: any[] = [];
@@ -40,7 +48,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private readonly supabaseService: SupabaseService
+    private readonly supabaseService: SupabaseService,
+    private readonly authService: AuthService
   ) {
     this.productForm = this.fb.group({
       productName: ['', Validators.required],
@@ -51,6 +60,12 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getProducts();
+
+    this.authService.getUser().then(({ data }) => {
+      if (data.user) {
+        this.userMetadata = data.user.user_metadata as UserMetadata;
+      }
+    });
   }
 
   async getProducts() {
