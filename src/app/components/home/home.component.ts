@@ -10,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { CurrencyShiftDirective } from '../../directives/currency-shift.directive';
 import { SupabaseService } from '../../services/supabase.service';
 import { AuthService } from '../../services/auth.service';
+import { MenuComponent } from '../menu/menu.component';
 
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
@@ -29,7 +30,17 @@ interface UserMetadata {
 
 @Component({
   selector: 'app-home',
-  imports: [AutoComplete, InputNumberModule, ReactiveFormsModule, TableModule, IftaLabelModule, ButtonModule, CurrencyShiftDirective, AvatarModule],
+  imports: [
+    AutoComplete,
+    InputNumberModule,
+    ReactiveFormsModule,
+    TableModule,
+    IftaLabelModule,
+    ButtonModule,
+    CurrencyShiftDirective,
+    AvatarModule,
+    MenuComponent
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

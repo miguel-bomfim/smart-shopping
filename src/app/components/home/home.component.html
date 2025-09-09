@@ -1,16 +1,14 @@
 <main class="flex justify-center">
   <section class="p-8 max-w-3xl flex-auto">
-    <header class="flex items-center justify-end mb-6">
-      @if (userMetadata) {
+    <img src="ss-logo.png" class="w-16 absolute top-0 left-1/2 -translate-1/2 translate-y-1/2" alt="">
+    <header class="flex items-center justify-between mb-6">
+      <app-menu />
+      <!-- @if (userMetadata) {
         <p-avatar [image]="userMetadata.avatar_url" class="mr-2 border-2 border-green-300" size="large" shape="circle" />
       } @else {
         <p-avatar icon="pi pi-user" class="mr-2" size="large" [style]="{ 'background-color': '#defce3', color: '#1a5127' }" shape="circle" />
-      }
+      } -->
     </header>
-    <h1 class="text-center text-3xl">
-      <i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i>
-      SmartShopping
-    </h1>
   
     <h2 class="text-center text-stone-100 text-2xl py-6"><span class="bg-emerald-500 px-2 py-1 rounded-md">R$ {{ total.toFixed(2).replace('.', ',') }}</span></h2>
   
