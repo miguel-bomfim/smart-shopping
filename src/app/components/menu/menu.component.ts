@@ -6,6 +6,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { StyleClass } from 'primeng/styleclass';
 import { Drawer } from 'primeng/drawer';
 import { AuthService } from '../../services/auth.service';
+import { RouterLink } from "@angular/router";
 
 interface UserMetadata {
   name: string;
@@ -14,7 +15,7 @@ interface UserMetadata {
 
 @Component({
   selector: 'app-menu',
-  imports: [DrawerModule, ButtonModule, Ripple, AvatarModule, StyleClass],
+  imports: [DrawerModule, ButtonModule, Ripple, AvatarModule, StyleClass, RouterLink],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })

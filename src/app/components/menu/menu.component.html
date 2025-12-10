@@ -26,21 +26,15 @@
                         </div>
                         <ul class="list-none p-0 m-0 overflow-hidden">
                             <li>
-                                <a pRipple class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
-                                    <i class="pi pi-home mr-2"></i>
+                                <a (click)="closeCallback($event)" routerLink="/dashboard" pRipple class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
+                                    <i class="pi pi-chart-bar mr-2"></i>
                                     <span class="font-medium">Dashboard</span>
                                 </a>
                             </li>
                             <li>
-                                <a pRipple class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
-                                    <i class="pi pi-calendar mr-2"></i>
-                                    <span class="font-medium">Calendário</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a pRipple class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
-                                    <i class="pi pi-cog mr-2"></i>
-                                    <span class="font-medium">Configurações</span>
+                                <a (click)="closeCallback($event)" routerLink="/lista" pRipple class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
+                                    <i class="pi pi-cart-plus mr-2"></i>
+                                    <span class="font-medium">Lista de compras</span>
                                 </a>
                             </li>
                         </ul>

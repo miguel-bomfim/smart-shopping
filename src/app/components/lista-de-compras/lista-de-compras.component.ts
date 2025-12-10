@@ -10,7 +10,6 @@ import { ButtonModule } from 'primeng/button';
 import { CurrencyShiftDirective } from '../../directives/currency-shift.directive';
 import { SupabaseService } from '../../services/supabase.service';
 import { AuthService } from '../../services/auth.service';
-import { MenuComponent } from '../menu/menu.component';
 
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
@@ -29,7 +28,7 @@ interface UserMetadata {
 }
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-lista-de-compras',
   imports: [
     AutoComplete,
     InputNumberModule,
@@ -38,13 +37,12 @@ interface UserMetadata {
     IftaLabelModule,
     ButtonModule,
     CurrencyShiftDirective,
-    AvatarModule,
-    MenuComponent
+    AvatarModule
   ],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  templateUrl: './lista-de-compras.component.html',
+  styleUrl: './lista-de-compras.component.css'
 })
-export class HomeComponent implements OnInit {
+export class ListaDeComprasComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
 
   products: { name: string }[] = []
@@ -56,6 +54,8 @@ export class HomeComponent implements OnInit {
   initialValue: Product[] = [];
   total: number = 0;
   isSorted: boolean | null = null;
+
+  private readonly STORAGE_KEY = 'shopping_list_data';
 
   constructor(
     private fb: FormBuilder,
@@ -70,6 +70,8 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadFromLocalStorage();
+
     this.getProducts();
 
     this.authService.getUser().then(({ data }) => {
@@ -77,6 +79,30 @@ export class HomeComponent implements OnInit {
         this.userMetadata = data.user.user_metadata as UserMetadata;
       }
     });
+  }
+
+  loadFromLocalStorage() {
+    const data = localStorage.getItem(this.STORAGE_KEY);
+    if (data) {
+      this.productList = JSON.parse(data);
+      this.initialValue = [...this.productList];
+      this.total = this.productList.reduce((acc, item) => acc + (item.price * item.qtd), 0);
+    }
+  }
+
+  updateLocalStorage() {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.productList));
+  }
+
+  clearList() {
+    this.productList = [];
+    this.initialValue = [];
+    this.total = 0;
+    localStorage.removeItem(this.STORAGE_KEY);
+
+    if (this.dt) {
+        this.dt.reset();
+    }
   }
 
   async getProducts() {
@@ -118,6 +144,8 @@ export class HomeComponent implements OnInit {
     this.initialValue.unshift({ name: formValue.productName, price: formValue.productPrice, qtd: formValue.quantity });
     this.total += formValue.productPrice * formValue.quantity;
 
+    this.updateLocalStorage();
+
     this.productForm.reset({
       productName: '',
       productPrice: 0,
@@ -136,6 +164,8 @@ export class HomeComponent implements OnInit {
     if (indexInInitial > -1) {
       this.initialValue.splice(indexInInitial, 1);
     }
+
+    this.updateLocalStorage();
   }
 
   customSort(event: SortEvent) {
