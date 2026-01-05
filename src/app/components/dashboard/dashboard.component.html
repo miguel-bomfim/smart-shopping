@@ -1,5 +1,71 @@
+<div class="dashboard-container p-4 fade-in">
+  <h1 class="text-center text-3xl font-bold mb-6 text-white">Dashboard {{ anoAtual }}</h1>
 
-<section class="mt-20 p-8">
-    <h1 class="text-3xl mb-4">Dashboard</h1>
-    <span>Em breve...</span>
-</section>
+  <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+    <div *ngFor="let mes of meses" 
+         (click)="selecionarMes(mes)"
+         class="cursor-pointer transition-transform hover:scale-105">
+      <p-card [styleClass]="mesSelecionado === mes ? 'bg-primary text-white' : 'surface-card'">
+        <div class="text-center font-bold text-xl">{{ mes.nome }}</div>
+      </p-card>
+    </div>
+  </div>
+
+  <div *ngIf="mesSelecionado && resumo" class="details-section mt-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-green-400">
+        {{ mesSelecionado.nome }} - Fatura Atual Total
+      </h2>
+      <button pButton label="Adicionar Gasto" icon="pi pi-plus" (click)="abrirModalAdicionar()"></button>
+    </div>
+
+    <div class="text-6xl font-bold text-white mb-8 text-center">
+      {{ resumo.total | currency:'BRL' }}
+    </div>
+
+    <hr class="border-gray-700 mb-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div *ngFor="let user of resumo.usuarios" class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+        <h3 class="text-xl font-bold text-blue-400 mb-4 border-b border-gray-600 pb-2">
+          {{ user.nome }}
+        </h3>
+        
+        <div *ngFor="let cartao of user.cartoes" class="flex justify-between items-center mb-2 text-lg">
+          <span class="font-semibold text-gray-300">{{ cartao.nome }}</span>
+          <span class="font-mono text-white">{{ cartao.valor | currency:'BRL' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="Novo Gasto ({{mesSelecionado?.nome}})" [(visible)]="displayAddModal" [modal]="true" [style]="{width: '90vw', maxWidth: '400px'}">
+  <div class="flex flex-col gap-4 mt-2">
+    
+    <input pInputText 
+           placeholder="Descrição (ex: Mercado)" 
+           [(ngModel)]="novoGasto.descricao" 
+           class="w-full" />
+
+    <input type="number" 
+           pInputText 
+           placeholder="Valor (R$)" 
+           [(ngModel)]="novoGasto.valor" 
+           class="w-full" />
+
+    <p-select 
+        [options]="opcoesCartao" 
+        [(ngModel)]="novoGasto.cartao" 
+        optionLabel="label" 
+        optionValue="value" 
+        placeholder="Selecione o Cartão" 
+        styleClass="w-full">
+    </p-select>
+
+    <div class="flex justify-end gap-2 mt-4">
+        <button pButton label="Cancelar" class="p-button-text" (click)="displayAddModal = false"></button>
+        <button pButton label="Salvar" class="p-button-success" (click)="salvarGasto()"></button>
+    </div>
+  </div>
+</p-dialog>
